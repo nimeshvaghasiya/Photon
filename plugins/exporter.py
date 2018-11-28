@@ -1,24 +1,24 @@
+"""Support for exporting the results."""
+import csv
 import json
 
-json_dict = {
-'files' : [],
-'intel' : [],
-'robots' : [],
-'custom' : [],
-'failed' : [],
-'storage' : [],
-'scripts' : [],
-'external' : [],
-'fuzzable' : [],
-'endpoints' : [],
-'processed' : []
-}
 
-def exporter(directory, method, *datasets):
-	if method.lower() == 'json':
-		for data, json_list in zip(datasets, json_dict): # iterating over two two arrays at once
-			json_dict[json_list] = list(data) # replace blank lists in json_dict with results
-		json_string = json.dumps(json_dict, indent=4) # convert json_dict to a json styled string
-		savefile = open('%s/exported.json' % directory, 'w+') # save
-		savefile.write(json_string)
-		savefile.close()
+def exporter(directory, method, datasets):
+    """Export the results."""
+    if method.lower() == 'json':
+        # Convert json_dict to a JSON styled string
+        json_string = json.dumps(datasets, indent=4)
+        savefile = open('{}/exported.json'.format(directory), 'w+')
+        savefile.write(json_string)
+        savefile.close()
+
+    if method.lower() == 'csv':
+        with open('{}/exported.csv'.format(directory), 'w+') as csvfile:
+            csv_writer = csv.writer(
+                csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            for key, values in datasets.items():
+                if values is None:
+                    csv_writer.writerow([key])
+                else:
+                    csv_writer.writerow([key] + values)
+        csvfile.close()
